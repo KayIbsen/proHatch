@@ -22,13 +22,23 @@ namespace proHatchApp
     /// </summary>
     public sealed partial class MainPage : Page
     {
-
+        private DispatcherTimer sensorTimer = new DispatcherTimer();
 
 
         public MainPage()
         {
             this.InitializeComponent();
 
+
+
+            sensorTimer.Interval = TimeSpan.FromSeconds(1);
+            sensorTimer.Tick += sensorTimer_Tick;
+            sensorTimer.Start();
+        }
+
+
+        private void sensorTimer_Tick(object sender, object e)
+        {
 
         }
 
