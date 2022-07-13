@@ -49,7 +49,7 @@ namespace proHatchApp
 
         private void sensorTimer_Tick(object sender, object e)
         {
-            readSensor()
+            readSensor();
         }
 
 
@@ -60,7 +60,7 @@ namespace proHatchApp
 
 
             DhtReading reading = await dht.GetReadingAsync().AsTask();
-            
+
             if (reading.IsValid)
             {
                 temp = reading.Temperature;
