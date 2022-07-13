@@ -12,6 +12,9 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Sensors.Dht;
+using Windows.Devices.Gpio;
+using System.Diagnostics;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -24,11 +27,18 @@ namespace proHatchApp
     {
         private DispatcherTimer sensorTimer = new DispatcherTimer();
 
+        // DHT22 Comm variables //
+        private const int DHTPIN = 4;
+        private IDht dht = null;
+        private GpioPin dhtPin = null;
+
 
         public MainPage()
         {
             this.InitializeComponent();
 
+            dhtPin = GpioController.GetDefault().OpenPin(DHTPIN, GpioSharingMode.Exclusive);
+            dht = new Dht22(dhtPin, GpioPinDriveMode.Input);
 
 
             sensorTimer.Interval = TimeSpan.FromSeconds(1);
@@ -39,9 +49,27 @@ namespace proHatchApp
 
         private void sensorTimer_Tick(object sender, object e)
         {
-
+            readSensor()
         }
 
+
+        private async void readSensor()
+        {
+            double temp = 0;
+            double humidity = 0;
+
+
+            DhtReading reading = await dht.GetReadingAsync().AsTask();
+            
+            if (reading.IsValid)
+            {
+                temp = reading.Temperature;
+                humidity = reading.Humidity;
+
+                Debug.WriteLine($"temp: {temp} C humidity {humidity}%");
+            }
+
+        }
 
     }
 }
