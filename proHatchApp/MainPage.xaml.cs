@@ -15,6 +15,9 @@ using Windows.UI.Xaml.Navigation;
 using Sensors.Dht;
 using Windows.Devices.Gpio;
 using System.Diagnostics;
+using Microsoft.Azure.Devices.Client;
+using System.Threading.Tasks;
+using System.Text;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -26,28 +29,60 @@ namespace proHatchApp
     public sealed partial class MainPage : Page
     {
         private DispatcherTimer sensorTimer = new DispatcherTimer();
+        private DispatcherTimer storeSensorValues = new DispatcherTimer();
 
         // DHT22 Comm variables //
         private const int DHTPIN = 4;
         private IDht dht = null;
         private GpioPin dhtPin = null;
 
+        // Unit info
+        private const int UnitId = 1;
+
+        // Client
+        private DeviceClient _deviceClient;
+        private AppConfig _config;
+
+
+        // Datapoints
+        private double temperature;
+        private double humidity;
+
+        
 
         public MainPage()
         {
             this.InitializeComponent();
 
+            _config = new AppConfig();
+            _deviceClient = InitializeDeviceClient(_config.GetSection<AppConfig_DTO>("ConnectionStrings").deviceConnectionString); // get deviceConnection
+            
+
             dhtPin = GpioController.GetDefault().OpenPin(DHTPIN, GpioSharingMode.Exclusive);
             dht = new Dht22(dhtPin, GpioPinDriveMode.Input);
 
-
-            sensorTimer.Interval = TimeSpan.FromSeconds(1);
+            // setup sensorTimer
+            sensorTimer.Interval = TimeSpan.FromSeconds(10);
             sensorTimer.Tick += sensorTimer_Tick;
             sensorTimer.Start();
+
+            // setup storeSensorValues
+            storeSensorValues.Interval = TimeSpan.FromSeconds(300);
+            storeSensorValues.Tick += storeSensorValues_Tick;
+            storeSensorValues.Start();
         }
 
+        private async void storeSensorValues_Tick(object sender, object e)
+        {
+            await SendSensorTelemetryAsync();
+        }
 
-        private void sensorTimer_Tick(object sender, object e)
+        private DeviceClient InitializeDeviceClient(string deviceConnectionString)
+        {
+            return DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Mqtt, new ClientOptions { });
+        }
+
+        private async void sensorTimer_Tick(object sender, object e)
         {
             readSensor();
         }
@@ -55,21 +90,37 @@ namespace proHatchApp
 
         private async void readSensor()
         {
-            double temp = 0;
-            double humidity = 0;
-
 
             DhtReading reading = await dht.GetReadingAsync().AsTask();
 
             if (reading.IsValid)
             {
-                temp = reading.Temperature;
+                temperature = reading.Temperature;
                 humidity = reading.Humidity;
 
-                Debug.WriteLine($"temp: {temp} C humidity {humidity}%");
+                Debug.WriteLine($"temp: {reading.Temperature} C humidity {reading.Humidity}%");
             }
 
         }
+
+        private async Task SendSensorTelemetryAsync()
+        {
+            const string telemetryName1 = "temperature";
+            //const string telemetryName2 = "humidity";
+
+            string telemetryPayload = $"{telemetryName1} : {temperature}";
+            
+            var message = new Message(Encoding.UTF8.GetBytes(telemetryPayload))
+            {
+                ContentEncoding = "utf-8",
+                ContentType = "application/json",
+            };
+
+            await _deviceClient.SendEventAsync(message);
+            Debug.WriteLine("Telemetry has been send");
+
+        }
+
 
     }
 }
