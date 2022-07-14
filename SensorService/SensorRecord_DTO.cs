@@ -9,9 +9,9 @@ namespace SensorService
     public class SensorRecord_DTO
     {
 
-        public Guid Id { get; set; }
-        public Guid UnitId { get; set; }
-        public DateTime TimeStamp { get; set; }
+        public string Id { get; set; }
+        public string UnitId { get; set; }
+        public string TimeStamp { get; set; }
         public float Temperature { get; set; }
         public float Humidity { get; set; }
         public int PPM { get; set; }
