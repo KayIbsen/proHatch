@@ -32,6 +32,9 @@ namespace proHatchApp
         private IDht dht = null;
         private GpioPin dhtPin = null;
 
+        // Unit info
+        private const int UnitId = 1;
+
 
         public MainPage()
         {
