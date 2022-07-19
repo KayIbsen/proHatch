@@ -121,9 +121,12 @@
     </Compile>
     <Compile Include="AppConfig.cs" />
     <Compile Include="AppConfig_DTO.cs" />
+    <Compile Include="Input\Dht22_Input.cs" />
+    <Compile Include="Interfaces\ISensor.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\Reading_DTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

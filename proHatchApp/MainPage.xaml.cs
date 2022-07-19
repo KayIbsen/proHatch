@@ -18,6 +18,9 @@ using System.Diagnostics;
 using Microsoft.Azure.Devices.Client;
 using System.Threading.Tasks;
 using System.Text;
+using proHatchApp.Interfaces;
+using proHatchApp.Input;
+using proHatchApp.Models;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -32,9 +35,7 @@ namespace proHatchApp
         private DispatcherTimer storeSensorValues = new DispatcherTimer();
 
         // DHT22 Comm variables //
-        private const int DHTPIN = 4;
-        private IDht dht = null;
-        private GpioPin dhtPin = null;
+        private ISensor _insideDht22Sensor;
 
         // Unit info
         private const int UnitId = 1;
@@ -43,11 +44,9 @@ namespace proHatchApp
         private DeviceClient _deviceClient;
         private AppConfig _config;
 
-
-        // Datapoints
-        private double temperature;
-        private double humidity;
-
+        // Data Points
+        private double _temp;
+        private double _humid;
         
 
         public MainPage()
@@ -56,10 +55,10 @@ namespace proHatchApp
 
             _config = new AppConfig();
             _deviceClient = InitializeDeviceClient(_config.GetSection<AppConfig_DTO>("ConnectionStrings").deviceConnectionString); // get deviceConnection
-            
 
-            dhtPin = GpioController.GetDefault().OpenPin(DHTPIN, GpioSharingMode.Exclusive);
-            dht = new Dht22(dhtPin, GpioPinDriveMode.Input);
+            _insideDht22Sensor = new Dht22_Input(4);
+
+
 
             // setup sensorTimer
             sensorTimer.Interval = TimeSpan.FromSeconds(10);
@@ -71,7 +70,7 @@ namespace proHatchApp
             storeSensorValues.Tick += storeSensorValues_Tick;
             storeSensorValues.Start();
         }
-
+        
         private async void storeSensorValues_Tick(object sender, object e)
         {
             await SendSensorTelemetryAsync();
@@ -84,31 +83,18 @@ namespace proHatchApp
 
         private async void sensorTimer_Tick(object sender, object e)
         {
-            readSensor();
+            Reading_DTO reading = await _insideDht22Sensor.Read();
+            Debug.WriteLine($"temp: {reading.Temperature} C humidity {reading.Humidity}%");
         }
 
 
-        private async void readSensor()
-        {
-
-            DhtReading reading = await dht.GetReadingAsync().AsTask();
-
-            if (reading.IsValid)
-            {
-                temperature = reading.Temperature;
-                humidity = reading.Humidity;
-
-                Debug.WriteLine($"temp: {reading.Temperature} C humidity {reading.Humidity}%");
-            }
-
-        }
 
         private async Task SendSensorTelemetryAsync()
         {
             const string telemetryName1 = "temperature";
             //const string telemetryName2 = "humidity";
 
-            string telemetryPayload = $"{telemetryName1} : {temperature}";
+            string telemetryPayload = $"{telemetryName1} : {_temp}";
             
             var message = new Message(Encoding.UTF8.GetBytes(telemetryPayload))
             {
