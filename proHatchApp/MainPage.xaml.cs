@@ -15,6 +15,8 @@ using Windows.UI.Xaml.Navigation;
 using Sensors.Dht;
 using Windows.Devices.Gpio;
 using System.Diagnostics;
+using proHatchApp.Sensors;
+using proHatchApp.Models;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -27,19 +29,25 @@ namespace proHatchApp
     {
         private DispatcherTimer sensorTimer = new DispatcherTimer();
 
-        // DHT22 Comm variables //
-        private const int DHTPIN = 4;
-        private IDht dht = null;
-        private GpioPin dhtPin = null;
+        //     DHT22 Comm variables     //
+        //private const int DHTPIN = 4;
+        //private IDht dht = null;
+        //private GpioPin dhtPin = null;
 
+        private Isensor _insideSensor;
+
+
+        private double _temp = 0;
+        private double _humid = 0;
 
         public MainPage()
         {
             this.InitializeComponent();
 
-            dhtPin = GpioController.GetDefault().OpenPin(DHTPIN, GpioSharingMode.Exclusive);
-            dht = new Dht22(dhtPin, GpioPinDriveMode.Input);
+            //dhtPin = GpioController.GetDefault().OpenPin(DHTPIN, GpioSharingMode.Exclusive);
+            //dht = new Dht22(dhtPin, GpioPinDriveMode.Input);
 
+            _insideSensor = new Sensor_Dht22(4);
 
             sensorTimer.Interval = TimeSpan.FromSeconds(1);
             sensorTimer.Tick += sensorTimer_Tick;
@@ -47,29 +55,36 @@ namespace proHatchApp
         }
 
 
-        private void sensorTimer_Tick(object sender, object e)
+        private async void sensorTimer_Tick(object sender, object e)
         {
-            readSensor()
-        }
+            //readSensor();
+            SensorReading_DTO SensorRead = await _insideSensor.Read();
 
-
-        private async void readSensor()
-        {
-            double temp = 0;
-            double humidity = 0;
-
-
-            DhtReading reading = await dht.GetReadingAsync().AsTask();
-            
-            if (reading.IsValid)
+            if (SensorRead != null)
             {
-                temp = reading.Temperature;
-                humidity = reading.Humidity;
-
-                Debug.WriteLine($"temp: {temp} C humidity {humidity}%");
+                _temp = SensorRead.Temperature;
+                _humid = SensorRead.Humidity;
             }
+            Debug.WriteLine($"temp: {_temp} C humidity {_humid}%");
 
         }
+
+
+        //private async void readSensor()
+        //{
+
+
+        //    DhtReading reading = await dht.GetReadingAsync().AsTask();
+            
+        //    if (reading.IsValid)
+        //    {
+        //        temp = reading.Temperature;
+        //        humidity = reading.Humidity;
+
+        //        Debug.WriteLine($"temp: {temp} C humidity {humidity}%");
+        //    }
+
+        //}
 
     }
 }
