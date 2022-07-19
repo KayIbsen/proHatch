@@ -22,13 +22,9 @@ using proHatchApp.Interfaces;
 using proHatchApp.Input;
 using proHatchApp.Models;
 
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace proHatchApp
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
         private DispatcherTimer sensorTimer = new DispatcherTimer();
@@ -61,7 +57,7 @@ namespace proHatchApp
 
 
             // setup sensorTimer
-            sensorTimer.Interval = TimeSpan.FromSeconds(10);
+            sensorTimer.Interval = TimeSpan.FromSeconds(1);
             sensorTimer.Tick += sensorTimer_Tick;
             sensorTimer.Start();
 
@@ -84,7 +80,15 @@ namespace proHatchApp
         private async void sensorTimer_Tick(object sender, object e)
         {
             Reading_DTO reading = await _insideDht22Sensor.Read();
-            Debug.WriteLine($"temp: {reading.Temperature} C humidity {reading.Humidity}%");
+            
+            if(reading != null)
+            {
+                _temp = reading.Temperature;
+                _humid = reading.Humidity;
+
+                Debug.WriteLine($"temp: {_temp} C humidity {_humid}%");
+            }
+            
         }
 
 
