@@ -36,10 +36,6 @@ namespace proHatchApp
 
         private Isensor _insideSensor;
 
-
-        private double _temp = 0;
-        private double _humid = 0;
-
         public MainPage()
         {
             this.InitializeComponent();
@@ -62,10 +58,8 @@ namespace proHatchApp
 
             if (SensorRead != null)
             {
-                _temp = SensorRead.Temperature;
-                _humid = SensorRead.Humidity;
+                Debug.WriteLine($"temp: {SensorRead.Temperature} C humidity {SensorRead.Humidity}%");
             }
-            Debug.WriteLine($"temp: {_temp} C humidity {_humid}%");
 
         }
 
