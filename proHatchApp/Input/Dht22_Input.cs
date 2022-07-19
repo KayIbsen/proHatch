@@ -12,8 +12,8 @@ namespace proHatchApp.Input
 {
     public class Dht22_Input : ISensor
     {
-        private IDht _dht = null;
-        private GpioPin _dhtPin = null;
+        private readonly IDht _dht = null;
+        private readonly GpioPin _dhtPin = null;
 
 
         public Dht22_Input(int PinNumber)
