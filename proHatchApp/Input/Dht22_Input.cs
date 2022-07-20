@@ -1,5 +1,6 @@
 ﻿using proHatchApp.Interfaces;
 using proHatchApp.Models;
+using proHatchApp.Output;
 using Sensors.Dht;
 using System;
 using System.Collections.Generic;

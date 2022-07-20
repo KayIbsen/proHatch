@@ -21,7 +21,7 @@ using System.Text;
 using proHatchApp.Interfaces;
 using proHatchApp.Input;
 using proHatchApp.Models;
-
+using proHatchApp.Output;
 
 namespace proHatchApp
 {
@@ -32,6 +32,9 @@ namespace proHatchApp
 
         // DHT22 Comm variables //
         private ISensor _insideDht22Sensor;
+
+        // elegoo Relay 4 channel
+        private IOutput _relayOutput;
 
         // Unit info
         private const int UnitId = 1;
@@ -53,7 +56,7 @@ namespace proHatchApp
             _deviceClient = InitializeDeviceClient(_config.GetSection<AppConfig_DTO>("ConnectionStrings").deviceConnectionString); // get deviceConnection
 
             _insideDht22Sensor = new Dht22_Input(4);
-
+            _relayOutput = new Elegoo4Ch_Output(5, 6, 13, 19);
 
 
             // setup sensorTimer
@@ -65,6 +68,9 @@ namespace proHatchApp
             storeSensorValues.Interval = TimeSpan.FromSeconds(300);
             storeSensorValues.Tick += storeSensorValues_Tick;
             storeSensorValues.Start();
+
+           
+
         }
         
         private async void storeSensorValues_Tick(object sender, object e)
@@ -108,6 +114,27 @@ namespace proHatchApp
 
             await _deviceClient.SendEventAsync(message);
             Debug.WriteLine("Telemetry has been send");
+
+        }
+
+
+        private void TestRelay()
+        {
+            while (true) 
+            {
+
+                bool state = true;
+
+                for (int i = 0; i == 4; i++)
+                {
+                    //change relay 
+                    
+
+                }
+
+
+
+            }
 
         }
 
