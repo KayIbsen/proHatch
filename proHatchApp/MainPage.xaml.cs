@@ -69,7 +69,9 @@ namespace proHatchApp
             storeSensorValues.Tick += storeSensorValues_Tick;
             storeSensorValues.Start();
 
-           
+
+
+
 
         }
         
@@ -118,23 +120,9 @@ namespace proHatchApp
         }
 
 
-        private void TestRelay()
+        private void TestEvent(object sender, object e)
         {
-            while (true) 
-            {
-
-                bool state = true;
-
-                for (int i = 0; i == 4; i++)
-                {
-                    //change relay 
-                    
-
-                }
-
-
-
-            }
+            // some code
 
         }
 
