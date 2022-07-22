@@ -12,16 +12,16 @@ namespace proHatchApp.Output
     {
         private int[] _relayPins = null;
 
-        private GpioPin _relay1;
-        private GpioPin _relay2;
-        private GpioPin _relay3;
-        private GpioPin _relay4;
+        private readonly GpioPin _relay1;
+        private readonly GpioPin _relay2;
+        private readonly GpioPin _relay3;
+        private readonly GpioPin _relay4;
 
         public Elegoo4Ch_Output(int gpioPinRelay1, int gpioPinRelay2, int gpioPinRelay3, int gpioPinRelay4)
         {
             _relayPins = new int[4] { gpioPinRelay1, gpioPinRelay2, gpioPinRelay3, gpioPinRelay4 }; 
 
-            var gpioController = GpioController.GetDefault();
+            //var gpioController = GpioController.GetDefault();
 
             _relay1 = GpioController.GetDefault().OpenPin(gpioPinRelay1, GpioSharingMode.Exclusive);
             _relay1.SetDriveMode(GpioPinDriveMode.Output);
@@ -40,12 +40,24 @@ namespace proHatchApp.Output
 
             GpioPinValue gpioPinValue = (state ? GpioPinValue.Low : GpioPinValue.High);
 
+            switch (relayNumber)
+            {
+                case 1:
+                    _relay1.Write(gpioPinValue);
+                    break;
+                case 2:
+                    _relay2.Write(gpioPinValue);
+                    break;
+                case 3:
+                    _relay3.Write(gpioPinValue);
+                    break;
+                case 4:
+                    _relay4.Write(gpioPinValue);
+                    break;
+            }
 
-            //_relayPins[relayNumber + 1].Write(gpioPinValue);
 
         }
-
-
 
     }
 }
