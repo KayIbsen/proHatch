@@ -8,5 +8,6 @@ namespace proHatchApp.Interfaces
 {
     public interface IOutput
     {
+        void ChangeState(int relayNumber, bool state);
     }
 }
