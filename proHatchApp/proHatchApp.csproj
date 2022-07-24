@@ -131,6 +131,7 @@
     <Compile Include="Models\DailySetpoints.cs" />
     <Compile Include="Models\Plan.cs" />
     <Compile Include="Models\PlanHumidity.cs" />
+    <Compile Include="Models\PlanInfo.cs" />
     <Compile Include="Models\PlanTemperature.cs" />
     <Compile Include="Models\PlanTurn.cs" />
     <Compile Include="Models\Reading_DTO.cs" />

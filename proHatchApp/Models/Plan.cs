@@ -9,27 +9,25 @@ namespace proHatchApp.Models
 {
     public class Plan : IPlan
     {
-        private string _id { get; set; }
-        private int _unitId { get; set; }
-        private string _name { get; set; }
-        private byte _active { get; set; }
-        private DateTime _beginDate { get; set; }
-        public int Days { get; set; }
-        private List<PlanTemperature> _planTemperatures { get; set; }
-        private List<PlanHumidity> _planHumidities { get; set; }
-        private List<PlanTurn> _planTurns { get; set; }
-
-        private List<DailySetpoints> _dailySetpoints { get; set; }
+        private PlanInfo _planInfo { get; set; }
+        private List<DailySetpoints> _dailySetpoints { get; }
 
 
-        public Plan(string id, int unitId, string name, byte active, DateTime beginDate, int days, List<PlanTemperature> planTemperatures, List<PlanHumidity> planHumidities, List<PlanTurn> planTurns)
+        public Plan(string id, int unitId, string name, byte isActive, DateTime launchTime, int days, List<PlanTemperature> planTemperatures, List<PlanHumidity> planHumidities, List<PlanTurn> planTurns)
         {
-            _id = id;
-            _unitId = unitId;
-            _name = name;
-            _active = active;
-            _beginDate = beginDate;
-            
+            _planInfo = new PlanInfo()
+            {
+                Id = id,
+                UnitId = unitId,    
+                Name = name,
+                IsActive = isActive,
+                LaunchTime = launchTime,
+                Days = days,
+                planTemperatures = planTemperatures,
+                planHumidities = planHumidities,
+                planTurns = planTurns
+            };
+
 
             // Order Lists 
             IOrderedEnumerable<PlanTemperature> planTemperaturesOrdered = planTemperatures.OrderBy(x => x.Order);
@@ -101,14 +99,21 @@ namespace proHatchApp.Models
         }
 
 
-        public DailySetpoints getDailySetpoints()
+        public DailySetpoints getDailySetpoints(int currentDay)
         {
-            throw new NotImplementedException();
+            return _dailySetpoints.FirstOrDefault(x => x.Day == currentDay);
         }
 
+        // If return 'DailySetpoints' are null, it means the 'plan' is finished
+        public DailySetpoints getNextDailySetpoints(int currentDay)
+        {
+            return _dailySetpoints.FirstOrDefault(x => x.Day == currentDay+1);
+        }
 
-
-
+        public PlanInfo getPlanInfo()
+        {
+            return _planInfo;
+        }
     }
 
 

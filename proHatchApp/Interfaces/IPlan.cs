@@ -9,6 +9,12 @@ namespace proHatchApp.Interfaces
 {
     public interface IPlan
     {
-        DailySetpoints getDailySetpoints();
+        DailySetpoints getDailySetpoints(int currentDay);
+
+        DailySetpoints getNextDailySetpoints(int currentDay);
+
+        PlanInfo getPlanInfo();
+
+
     }
 }
