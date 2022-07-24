@@ -30,6 +30,14 @@ namespace proHatchApp
         private DispatcherTimer sensorTimer = new DispatcherTimer();
         private DispatcherTimer storeSensorValues = new DispatcherTimer();
 
+
+        // MAN btn
+        private IButton _MAN_btn;
+        public enum OperationMode { MANUAL = 0, Auto = 1}; // 
+        OperationMode Mode;
+
+
+
         // DHT22 Comm variables //
         private ISensor _insideDht22Sensor;
 
@@ -51,6 +59,21 @@ namespace proHatchApp
         public MainPage()
         {
             this.InitializeComponent();
+
+            // initialize auto button + check if ON
+            _MAN_btn = new On_Off(18);
+            GpioPin MAN_gpioPin = _MAN_btn.ReadPin();
+            MAN_gpioPin.ValueChanged += _btnPin_ValueChanged;
+            Mode = (OperationMode)_MAN_btn.updatePinValue();
+
+
+
+            // if ON
+            // check db for active plan
+            // else open manuel
+            InitializeOperation();
+
+
 
             _config = new AppConfig();
             _deviceClient = InitializeDeviceClient(_config.GetSection<AppConfig_DTO>("ConnectionStrings").deviceConnectionString); // get deviceConnection
@@ -74,7 +97,14 @@ namespace proHatchApp
 
 
         }
-        
+
+        private void _btnPin_ValueChanged(GpioPin sender, GpioPinValueChangedEventArgs args)
+        {
+            _MAN_btn.updatePinValue();
+            Mode = (OperationMode)_MAN_btn.updatePinValue();
+            InitializeOperation();
+        }
+
         private async void storeSensorValues_Tick(object sender, object e)
         {
             await SendSensorTelemetryAsync();
@@ -120,11 +150,27 @@ namespace proHatchApp
         }
 
 
-        private void TestEvent(object sender, object e)
+        private void InitializeOperation()
         {
-            // some code
+
+            if (Mode == OperationMode.Auto)
+            {
+
+            }
+            else if (Mode == OperationMode.MANUAL)
+            {
+
+            }
+
 
         }
+
+       
+
+        
+
+
+
 
 
     }

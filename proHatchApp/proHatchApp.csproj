@@ -122,6 +122,9 @@
     <Compile Include="AppConfig.cs" />
     <Compile Include="AppConfig_DTO.cs" />
     <Compile Include="Input\Dht22_Input.cs" />
+    <Compile Include="Input\On_Off.cs" />
+    <Compile Include="Interfaces\IButton.cs" />
+    <Compile Include="Interfaces\IOperation.cs" />
     <Compile Include="Interfaces\IOutput.cs" />
     <Compile Include="Interfaces\IPlan.cs" />
     <Compile Include="Interfaces\ISensor.cs" />
@@ -135,6 +138,8 @@
     <Compile Include="Models\PlanTemperature.cs" />
     <Compile Include="Models\PlanTurn.cs" />
     <Compile Include="Models\Reading_DTO.cs" />
+    <Compile Include="Operation_AUTO.cs" />
+    <Compile Include="Operation_MAN.cs" />
     <Compile Include="Output\Elegoo4Ch_Output.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
