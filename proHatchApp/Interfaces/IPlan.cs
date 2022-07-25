@@ -15,6 +15,7 @@ namespace proHatchApp.Interfaces
 
         PlanInfo getPlanInfo();
 
+        void setInitialValues(int unitId, DateTime launchTime);
 
     }
 }

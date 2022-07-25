@@ -13,16 +13,16 @@ namespace proHatchApp.Models
         private List<DailySetpoints> _dailySetpoints { get; }
 
 
-        public Plan(string id, int unitId, string name, byte isActive, DateTime launchTime, int days, List<PlanTemperature> planTemperatures, List<PlanHumidity> planHumidities, List<PlanTurn> planTurns)
+        public Plan(string id, int? unitId, string name, byte isActive, DateTime? launchTime,int totalDays, List<PlanTemperature> planTemperatures, List<PlanHumidity> planHumidities, List<PlanTurn> planTurns)
         {
             _planInfo = new PlanInfo()
             {
                 Id = id,
-                UnitId = unitId,    
+                UnitId = (int)unitId,    
                 Name = name,
                 IsActive = isActive,
-                LaunchTime = launchTime,
-                Days = days,
+                LaunchTime = (DateTime)launchTime,
+                TotalDays = totalDays,
                 planTemperatures = planTemperatures,
                 planHumidities = planHumidities,
                 planTurns = planTurns
@@ -37,13 +37,13 @@ namespace proHatchApp.Models
             
         
             // Adding daily setpoints of different types to arrays
-            float[] _dailySetpointsTemperature = new float[days];
-            float[] _dailySetpointsTemperatureHystHigh = new float[days];
-            float[] _dailySetpointsTemperatureHystLow = new float[days];
-            float[] _dailySetpointsHumidity = new float[days];
-            float[] _dailySetpointsHumidityHystHigh = new float[days];
-            float[] _dailySetpointsHumidityHystLow = new float[days];
-            int[] _dailySetpointsTurn = new int[days];
+            float[] _dailySetpointsTemperature = new float[_planInfo.TotalDays];
+            float[] _dailySetpointsTemperatureHystHigh = new float[_planInfo.TotalDays];
+            float[] _dailySetpointsTemperatureHystLow = new float[_planInfo.TotalDays];
+            float[] _dailySetpointsHumidity = new float[_planInfo.TotalDays];
+            float[] _dailySetpointsHumidityHystHigh = new float[_planInfo.TotalDays];
+            float[] _dailySetpointsHumidityHystLow = new float[_planInfo.TotalDays];
+            int[] _dailySetpointsTurn = new int[_planInfo.TotalDays];
 
             int index = 0;
             foreach (PlanTemperature planTemperature in planTemperaturesOrdered)
@@ -113,6 +113,15 @@ namespace proHatchApp.Models
         public PlanInfo getPlanInfo()
         {
             return _planInfo;
+        }
+
+        public void setInitialValues(int unitId, DateTime launchTime)
+        {
+             
+            _planInfo.UnitId = unitId;
+               
+            _planInfo.LaunchTime = launchTime;  
+            
         }
     }
 

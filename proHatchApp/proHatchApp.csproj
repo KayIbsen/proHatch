@@ -138,8 +138,7 @@
     <Compile Include="Models\PlanTemperature.cs" />
     <Compile Include="Models\PlanTurn.cs" />
     <Compile Include="Models\Reading_DTO.cs" />
-    <Compile Include="Operation_AUTO.cs" />
-    <Compile Include="Operation_MAN.cs" />
+    <Compile Include="Operation.cs" />
     <Compile Include="Output\Elegoo4Ch_Output.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

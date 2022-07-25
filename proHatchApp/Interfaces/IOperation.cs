@@ -9,8 +9,9 @@ namespace proHatchApp.Interfaces
     public interface IOperation
     {
         void Start();
-        void Stop();
 
+
+        void Stop();
 
 
     }
