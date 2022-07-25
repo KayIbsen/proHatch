@@ -27,104 +27,143 @@ namespace proHatchApp
 {
     public sealed partial class MainPage : Page
     {
-        private DispatcherTimer sensorTimer = new DispatcherTimer();
-        private DispatcherTimer storeSensorValues = new DispatcherTimer();
 
-        // DHT22 Comm variables //
-        private ISensor _insideDht22Sensor;
-
-        // elegoo Relay 4 channel
-        private IOutput _relayOutput;
-
-        // Unit info
-        private const int UnitId = 1;
-
-        // Client
-        private DeviceClient _deviceClient;
         private AppConfig _config;
 
-        // Data Points
-        private double _temp;
-        private double _humid;
-        
+
+
+        // MAN btn
+        private IButton _MAN_btn;
+        public enum OperationMode { MANUAL = 0, AUTO = 1};
+        OperationMode Mode;
+
+
+        // Unit info
+        private const int _unitId = 1;
+
+
+        private IOperation _operation;
 
         public MainPage()
         {
             this.InitializeComponent();
-
             _config = new AppConfig();
-            _deviceClient = InitializeDeviceClient(_config.GetSection<AppConfig_DTO>("ConnectionStrings").deviceConnectionString); // get deviceConnection
-
-            _insideDht22Sensor = new Dht22_Input(4);
-            _relayOutput = new Elegoo4Ch_Output(5, 6, 13, 19);
-
-
-            // setup sensorTimer
-            sensorTimer.Interval = TimeSpan.FromSeconds(1);
-            sensorTimer.Tick += sensorTimer_Tick;
-            sensorTimer.Start();
-
-            // setup storeSensorValues
-            storeSensorValues.Interval = TimeSpan.FromSeconds(300);
-            storeSensorValues.Tick += storeSensorValues_Tick;
-            storeSensorValues.Start();
 
 
 
 
+            // initialize auto button + check if ON
+            _MAN_btn = new On_Off(18);
+            GpioPin MAN_gpioPin = _MAN_btn.ReadPin();
+            MAN_gpioPin.ValueChanged += _btnPin_ValueChanged;
+            Mode = (OperationMode)_MAN_btn.updatePinValue();
+
+            InitializeOperation();
 
         }
-        
-        private async void storeSensorValues_Tick(object sender, object e)
+
+
+        private void _btnPin_ValueChanged(GpioPin sender, GpioPinValueChangedEventArgs args)
         {
-            await SendSensorTelemetryAsync();
+            _MAN_btn.updatePinValue();
+            Mode = (OperationMode)_MAN_btn.updatePinValue();
+           
+            InitializeOperation();
         }
 
-        private DeviceClient InitializeDeviceClient(string deviceConnectionString)
-        {
-            return DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Mqtt, new ClientOptions { });
-        }
 
-        private async void sensorTimer_Tick(object sender, object e)
+
+
+        private void InitializeOperation()
         {
-            Reading_DTO reading = await _insideDht22Sensor.Read();
+
             
-            if(reading != null)
-            {
-                _temp = reading.Temperature;
-                _humid = reading.Humidity;
 
-                Debug.WriteLine($"temp: {_temp} C humidity {_humid}%");
+            if (Mode == OperationMode.AUTO)
+            {
+                // >>>>>>>>>   check for any 'IsActive'
+
+                //IPlan plan = DefaultPlans.GetDefaultPlan();
+                //plan.setInitialValues(_unitId, DateTime.Now);
+
+                IPlan plan = new Plan(
+                "5d72040c-03cc-4301-a2ff-0594b26916a3",
+                _unitId,
+                "Chicken",
+                1,
+                DateTime.Now,
+                21,
+                new List<PlanTemperature> { new PlanTemperature() {
+                    Id = "0912cbdf-e05b-4584-81ce-562b71c46d96",
+                    PlanId = "5d72040c-03cc-4301-a2ff-0594b26916a3",
+                    Order = 1,
+                    Days = 21,
+                    Set = 38.00F,
+                    HystHigh = 0.8F,
+                    HystLow = 1.8F }
+                },
+                new List<PlanHumidity> { new PlanHumidity()
+                {
+                    Id = "a2045c57-ae77-49b8-8189-e09970bb552c",
+                    PlanId = "5d72040c-03cc-4301-a2ff-0594b26916a3",
+                    Order = 1,
+                    Days = 17,
+                    Set = 52.00F,
+                    HystHigh = 3.00F,
+                    HystLow = 2.00F
+                },
+                new PlanHumidity()
+                {
+                    Id = "6661dd0f-b6e0-48d8-9447-bed1d95fcdec",
+                    PlanId = "5d72040c-03cc-4301-a2ff-0594b26916a3",
+                    Order = 2,
+                    Days = 4,
+                    Set = 70.00F,
+                    HystHigh = 2.00F,
+                    HystLow = 2.00F
+                }
+                },
+                new List<PlanTurn>()
+                {
+                    new PlanTurn()
+                    {
+                        Id = "a8ba27b7-6851-42eb-9a35-a97d060d7bc1",
+                        PlanId = "5d72040c-03cc-4301-a2ff-0594b26916a3",
+                        Order = 1,
+                        Days = 17,
+                        Set = 6
+                    },
+                    new PlanTurn()
+                    {
+                        Id = "2e6310c1-8f4f-421d-8c96-dfee368b06a2",
+                        PlanId = "5d72040c-03cc-4301-a2ff-0594b26916a3",
+                        Order = 1,
+                        Days = 4,
+                        Set = 0
+                    }
+                });
+
+
+
+                _operation = new Operation(_config , plan);
+                _operation.Start();
             }
-            
-        }
-
-
-
-        private async Task SendSensorTelemetryAsync()
-        {
-            const string telemetryName1 = "temperature";
-            //const string telemetryName2 = "humidity";
-
-            string telemetryPayload = $"{telemetryName1} : {_temp}";
-            
-            var message = new Message(Encoding.UTF8.GetBytes(telemetryPayload))
+            else if (Mode == OperationMode.MANUAL)
             {
-                ContentEncoding = "utf-8",
-                ContentType = "application/json",
-            };
 
-            await _deviceClient.SendEventAsync(message);
-            Debug.WriteLine("Telemetry has been send");
+            }
 
         }
 
+       
 
-        private void TestEvent(object sender, object e)
-        {
-            // some code
 
-        }
+
+
+
+
+
+
 
 
     }
